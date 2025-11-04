@@ -8,6 +8,11 @@ Write-Host "  INICIANDO TASK SERVICE" -ForegroundColor Yellow
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
+# Configurar Java 25
+Write-Host "☕ Configurando JDK 25..." -ForegroundColor Cyan
+$env:JAVA_HOME = "$env:USERPROFILE\.jdks\openjdk-25"
+$env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
+
 # Navegar al directorio del servicio
 Set-Location -Path "C:\Users\Diego\task-manager-soa\task-service"
 
