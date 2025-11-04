@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <!-- 
+    ============================================
+    INFORMACIÓN DEL PROYECTO
+    ============================================
+    Este es el archivo de configuración de Maven.
+    Define qué librerías (dependencias) necesita tu proyecto.
+    -->
+    
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.1.5</version>
+    </parent>
+    
+    <groupId>com.example</groupId>
+    <artifactId>task-service</artifactId>
+    <version>1.0.0</version>
+    <name>Task Service</name>
+    <description>Servicio de gestión de tareas - SOA</description>
+    
+    <properties>
+        <!-- Versión de Java que usaremos -->
+        <java.version>17</java.version>
+    </properties>
+    
+    <dependencies>
+        <!-- 
+        ============================================
+        SPRING BOOT WEB
+        ============================================
+        Permite crear APIs REST (endpoints HTTP)
+        Sin esto, no podrías recibir peticiones web
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        
+        <!-- 
+        ============================================
+        SPRING DATA JPA
+        ============================================
+        Facilita trabajar con bases de datos
+        Convierte objetos Java en tablas automáticamente
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        
+        <!-- 
+        ============================================
+        BASE DE DATOS H2
+        ============================================
+        Base de datos en memoria (no necesita instalación)
+        Perfecta para aprender y hacer pruebas
+        Los datos se pierden al cerrar la app
+        -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <!-- 
+        ============================================
+        LOMBOK
+        ============================================
+        Reduce código repetitivo (getters/setters)
+        Hace el código más limpio y legible
+        -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <!-- Plugin para empaquetar la aplicación -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

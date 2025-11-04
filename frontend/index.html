@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 Gestor de Tareas - SOA</title>
+    <style>
+        /* ============================================
+           ESTILOS CSS (Diseño Visual)
+           ============================================ */
+        
+        /* Estilos generales del body */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        /* Contenedor principal */
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        /* Título principal */
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        /* Subtítulo */
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        
+        /* Sección de estadísticas */
+        .stats {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        /* Formulario de nueva tarea */
+        .task-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .task-form h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        /* Inputs del formulario */
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        /* Botones */
+        button {
+            padding: 12px 24px;
+            margin: 5px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #51cf66;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffa500;
+            color: white;
+        }
+        
+        .btn-info {
+            background: #4dabf7;
+            color: white;
+        }
+        
+        /* Tarjetas de tareas */
+        .task-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .task-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+        }
+        
+        /* Tarea completada */
+        .task-card.completed {
+            background: #e7f5ff;
+            border-color: #51cf66;
+        }
+        
+        .task-card.completed h3 {
+            text-decoration: line-through;
+            color: #868e96;
+        }
+        
+        /* Título de la tarea */
+        .task-card h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        /* Descripción */
+        .task-description {
+            color: #666;
+            margin: 10px 0;
+        }
+        
+        /* Prioridad */
+        .priority {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .priority-HIGH {
+            background: #ffe0e0;
+            color: #ff0000;
+        }
+        
+        .priority-MEDIUM {
+            background: #fff4e0;
+            color: #ff8800;
+        }
+        
+        .priority-LOW {
+            background: #e0ffe0;
+            color: #00aa00;
+        }
+        
+        /* Barra de búsqueda */
+        .search-bar {
+            margin-bottom: 20px;
+        }
+        
+        /* Filtros */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        /* Estado vacío */
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+        }
+        
+        .empty-state img {
+            width: 200px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Encabezado -->
+        <h1>📋 Gestor de Tareas SOA</h1>
+        <p class="subtitle">Arquitectura orientada a servicios con Spring Boot</p>
+        
+        <!-- Estadísticas -->
+        <div class="stats" id="stats">
+            Cargando estadísticas...
+        </div>
+        
+        <!-- Formulario para crear tareas -->
+        <div class="task-form">
+            <h2>➕ Nueva Tarea</h2>
+            <input 
+                type="text" 
+                id="taskTitle" 
+                placeholder="Título de la tarea (obligatorio)"
+                maxlength="100">
+            
+            <textarea 
+                id="taskDescription" 
+                placeholder="Descripción detallada (opcional)"
+                rows="3"
+                maxlength="500"></textarea>
+            
+            <select id="taskPriority">
+                <option value="LOW">🟢 Prioridad Baja</option>
+                <option value="MEDIUM" selected>🟡 Prioridad Media</option>
+                <option value="HIGH">🔴 Prioridad Alta</option>
+            </select>
+            
+            <button class="btn-primary" onclick="createTask()">
+                ✅ Crear Tarea
+            </button>
+        </div>
+        
+        <!-- Barra de búsqueda -->
+        <div class="search-bar">
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="🔍 Buscar tareas por título..."
+                onkeyup="searchTasks()">
+        </div>
+        
+        <!-- Filtros -->
+        <div class="filters">
+            <button class="btn-info" onclick="loadTasks()">
+                📋 Todas las Tareas
+            </button>
+            <button class="btn-success" onclick="filterByStatus(true)">
+                ✅ Completadas
+            </button>
+            <button class="btn-warning" onclick="filterByStatus(false)">
+                ⏳ Pendientes
+            </button>
+        </div>
+        
+        <!-- Lista de tareas -->
+        <div id="taskList">
+            <div class="empty-state">
+                <p>⏳ Cargando tareas...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ============================================
+           CÓDIGO JAVASCRIPT (Lógica del Frontend)
+           ============================================ */
+        
+        // URL base de la API REST
+        const API_URL = 'http://localhost:8080/api/tasks';
+        
+        /**
+         * ============================================
+         * FUNCIÓN: Cargar todas las tareas
+         * ============================================
+         * Esta función hace una petición GET al backend
+         * para obtener todas las tareas y mostrarlas
+         */
+        function loadTasks() {
+            // fetch() hace una petición HTTP asíncrona
+            fetch(API_URL)
+                .then(response => response.json()) // Convierte la respuesta a JSON
+                .then(tasks => {
+                    displayTasks(tasks); // Muestra las tareas
+                    loadStatistics(); // Actualiza estadísticas
+                })
+                .catch(error => {
+                    console.error('Error al cargar tareas:', error);
+                    alert('❌ Error al conectar con el servidor');
+                });
+        }
+        
+        /**
+         * ============================================
+         * FUNCIÓN: Mostrar tareas en pantalla
+         * ============================================
+         * Recibe un array de tareas y las renderiza en HTML
+         */
+        function displayTasks(tasks) {
+            const taskList = document.getElementById('taskList');
+            
+            // Si no hay tareas, muestra un mensaje
+            if (tasks.length === 0) {
+                taskList.innerHTML = `
+                    <div class="empty-state">
+                        <p>📭 No hay tareas. ¡Crea una nueva!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Construye el HTML para cada tarea
+            taskList.innerHTML = tasks.map(task => `
+                <div class="task-card ${task.completed ? 'completed' : ''}">
+                    <h3>
+                        ${task.completed ? '✅' : '⏳'} ${task.title}
+                    </h3>
+                    <p class="task-description">${task.description || 'Sin descripción'}</p>
+                    <span class="priority priority-${task.priority}">
+                        ${task.priority === 'HIGH' ? '🔴' : task.priority === 'MEDIUM' ? '🟡' : '🟢'} 
+                        ${task.priority}
+                    </span>
+                    <span style="color: #999; font-size: 12px;">
+                        ID: ${task.id} | Creada: ${new Date(task.createdAt).toLocaleString('es')}
+                    </span>
+                    <div style="margin-top: 15px;">
+                        <button class="btn-success" onclick="toggleTask(${task.id})">
+                            ${task.completed ? '↩️ Marcar Pendiente' : '✅ Completar'}
+                        </button>
+                        <button class="btn-danger" onclick="deleteTask(${task.id})">
+                            🗑️ Eliminar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        /**
+         * ============================================
+         * FUNCIÓN: Crear nueva tarea
+         * ============================================
+         * Lee los datos del formulario y los envía al backend
+         */
+        function createTask() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
+            const priority = document.getElementById('taskPriority').value;
+            
+            // Validación: el título es obligatorio
+            if (!title) {
+                alert('⚠️ El título es obligatorio');
+                return;
+            }
+            
+            // Objeto con los datos de la tarea
+            const taskData = {
+                title: title,
+                description: description,
+                priority: priority,
+                completed: false
+            };
+            
+            // Envía petición POST al backend
+            fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(taskData)
+            })
+            .then(response => response.json())
+            .then(task => {
+                console.log('✅ Tarea creada:', task);
+                
+                // Limpia el formulario
+                document.getElementById('taskTitle').value = '';
+                document.getElementById('taskDescription').value = '';
+                document.getElementById('taskPriority').value = 'MEDIUM';
+                
+                // Recarga la lista
+                loadTasks();
+            })
+            .catch(error => {
+                console.error('Error al crear tarea:', error);
+                alert('❌ Error al crear la tarea');
+            });
+        }
+        
+        /**
+         * ============================================
+         * FUNCIÓN: Alternar estado de tarea
+         * ============================================
+         * Cambia de completada a pendiente (y viceversa)
+         */
+        function toggleTask(id) {
+            fetch(`${API_URL}/${id}/toggle`, {
+                method: 'PATCH'
+            })
+            .then(response => response.json())
+            .then(task => {
+                console.log('✅ Estado actualizado:', task);
+                loadTasks(); // Recarga la lista
+            })
+            .catch(error => {
+                console.error('Error al actualizar estado:', error);
+                alert('❌ Error al actualizar la tarea');
+            });
+        }
+        
+        /**
+         * ============================================
+         * FUNCIÓN: Eliminar tarea
+         * ============================================
+         * Elimina permanentemente una tarea
+         */
+        function deleteTask(id) {
+            // Confirma antes de eliminar
+            if (!confirm('¿Estás seguro de eliminar esta tarea?')) {
+                return;
+            }
+            
+            fetch(`${API_URL}/${id}`, {
+                method: 'DELETE'
+            })
+            .then(() => {
+                console.log('✅ Tarea eliminada');
+                loadTasks(); // Recarga la lista
+            })
+            .catch(error => {
+                console.error('Error al eliminar tarea:', error);
+                alert('❌ Error al eliminar la tarea');
+            });
+        }
+        
+        /**
+         * ============================================
+         * FUNCIÓN: Filtrar por estado
+         * ============================================
+         * Muestra solo tareas completadas o pendientes
+         */
+        function filterByStatus(completed) {
+            fetch(`${API_URL}/status/${completed}`)
+                .then(response => response.json())
+                .then(tasks => displayTasks(tasks))
+                .catch(error => console.error('Error:', error));
+        }
+        
+        /**
+         * ============================================
+         * FUNCIÓN: Buscar tareas
+         * ============================================
+         * Busca tareas por título mientras escribes
+         */
+        function searchTasks() {
+            const searchText = document.getElementById('searchInput').value.trim();
+            
+            if (searchText.length === 0) {
+                loadTasks(); // Si está vacío, muestra todas
+                return;
+            }
+            
+            fetch(`${API_URL}/search?title=${searchText}`)
+                .then(response => response.json())
+                .then(tasks => displayTasks(tasks))
+                .catch(error => console.error('Error:', error));
+        }
+        
+        /**
+         * ============================================
+         * FUNCIÓN: Cargar estadísticas
+         * ============================================
+         * Obtiene y muestra el conteo de tareas
+         */
+        function loadStatistics() {
+            fetch(`${API_URL}/stats`)
+                .then(response => response.text())
+                .then(stats => {
+                    document.getElementById('stats').textContent = stats;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        /**
+         * ============================================
+         * INICIALIZACIÓN
+         * ============================================
+         * Carga las tareas cuando se abre la página
+         */
+        window.onload = function() {
+            console.log('🚀 Aplicación iniciada');
+            loadTasks();
+        };
+        
+        // Permitir crear tarea con Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('taskTitle').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    createTask();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

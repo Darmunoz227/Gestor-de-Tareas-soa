@@ -1,0 +1,157 @@
+### ============================================
+### EJEMPLOS DE PETICIONES HTTP
+### ============================================
+### Este archivo contiene ejemplos para probar la API
+### Usa la extensión "REST Client" en VS Code para ejecutarlos
+### O cópialos en Postman/Insomnia
+
+### Variables
+@baseUrl = http://localhost:8080/api/tasks
+
+### ============================================
+### 1. OBTENER TODAS LAS TAREAS
+### ============================================
+GET {{baseUrl}}
+Accept: application/json
+
+###
+
+### ============================================
+### 2. OBTENER UNA TAREA POR ID
+### ============================================
+GET {{baseUrl}}/1
+Accept: application/json
+
+###
+
+### ============================================
+### 3. CREAR NUEVA TAREA
+### ============================================
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+    "title": "Aprender Spring Boot",
+    "description": "Estudiar los conceptos básicos de Spring Boot y JPA",
+    "priority": "HIGH",
+    "completed": false
+}
+
+###
+
+### ============================================
+### 4. CREAR TAREA CON PRIORIDAD MEDIA
+### ============================================
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+    "title": "Leer documentación",
+    "description": "Revisar la documentación oficial",
+    "priority": "MEDIUM"
+}
+
+###
+
+### ============================================
+### 5. CREAR TAREA CON PRIORIDAD BAJA
+### ============================================
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+    "title": "Organizar escritorio",
+    "description": "Limpiar y organizar el espacio de trabajo",
+    "priority": "LOW"
+}
+
+###
+
+### ============================================
+### 6. ACTUALIZAR TAREA COMPLETA
+### ============================================
+PUT {{baseUrl}}/1
+Content-Type: application/json
+
+{
+    "title": "Título actualizado",
+    "description": "Descripción modificada",
+    "priority": "MEDIUM",
+    "completed": true
+}
+
+###
+
+### ============================================
+### 7. ALTERNAR ESTADO DE TAREA
+### ============================================
+### Cambia de completada a pendiente (o viceversa)
+PATCH {{baseUrl}}/1/toggle
+
+###
+
+### ============================================
+### 8. ELIMINAR TAREA
+### ============================================
+DELETE {{baseUrl}}/1
+
+###
+
+### ============================================
+### 9. FILTRAR TAREAS COMPLETADAS
+### ============================================
+GET {{baseUrl}}/status/true
+Accept: application/json
+
+###
+
+### ============================================
+### 10. FILTRAR TAREAS PENDIENTES
+### ============================================
+GET {{baseUrl}}/status/false
+Accept: application/json
+
+###
+
+### ============================================
+### 11. BUSCAR TAREAS POR TÍTULO
+### ============================================
+GET {{baseUrl}}/search?title=Spring
+Accept: application/json
+
+###
+
+### ============================================
+### 12. OBTENER ESTADÍSTICAS
+### ============================================
+GET {{baseUrl}}/stats
+Accept: text/plain
+
+###
+
+### ============================================
+### EJEMPLOS CON POWERSHELL
+### ============================================
+
+### Obtener todas las tareas:
+# Invoke-RestMethod -Uri "http://localhost:8080/api/tasks" -Method GET
+
+### Crear una tarea:
+# $body = @{
+#     title = "Tarea desde PowerShell"
+#     description = "Creada con Invoke-RestMethod"
+#     priority = "HIGH"
+# } | ConvertTo-Json
+# Invoke-RestMethod -Uri "http://localhost:8080/api/tasks" -Method POST -Body $body -ContentType "application/json"
+
+### Eliminar tarea:
+# Invoke-RestMethod -Uri "http://localhost:8080/api/tasks/1" -Method DELETE
+
+### Alternar estado:
+# Invoke-RestMethod -Uri "http://localhost:8080/api/tasks/1/toggle" -Method PATCH
+
+### Buscar tareas:
+# Invoke-RestMethod -Uri "http://localhost:8080/api/tasks/search?title=Spring" -Method GET
+
+### Obtener estadísticas:
+# Invoke-RestMethod -Uri "http://localhost:8080/api/tasks/stats" -Method GET
