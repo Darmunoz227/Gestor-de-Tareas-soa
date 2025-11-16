@@ -71,6 +71,19 @@
         
         <!-- 
         ============================================
+        POSTGRESQL
+        ============================================
+        Base de datos relacional para producción
+        Usaremos esta en Docker para persistir datos
+        -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <!-- 
+        ============================================
         LOMBOK
         ============================================
         Reduce código repetitivo (getters/setters)

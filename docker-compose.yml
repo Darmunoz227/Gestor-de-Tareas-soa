@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # SERVICIO 1: BASE DE DATOS (PostgreSQL)
+  # ==========================================
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: taskdb-postgres
+    environment:
+      POSTGRES_DB: taskdb
+      POSTGRES_USER: taskuser
+      POSTGRES_PASSWORD: taskpass123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - task-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskuser -d taskdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================
+  # SERVICIO 2: BACKEND (Spring Boot)
+  # ==========================================
+  backend:
+    build:
+      context: ./task-service
+      dockerfile: Dockerfile
+    container_name: task-backend
+    ports:
+      - "9090:9090"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    networks:
+      - task-network
+
+  # ==========================================
+  # SERVICIO 3: FRONTEND (Nginx)
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: task-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - task-network
+
+# ==========================================
+# REDES
+# ==========================================
+networks:
+  task-network:
+    driver: bridge
+
+# ==========================================
+# VOLÚMENES (PERSISTENCIA DE DATOS)
+# ==========================================
+volumes:
+  postgres_data:
