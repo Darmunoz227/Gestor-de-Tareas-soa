@@ -13,30 +13,39 @@ pipeline {
             }
         }
 
-        stage('Unit Tests') {
-            agent {
-                docker {
-                    image 'maven:3.9-eclipse-temurin-21'
-                    reuseNode true
-                }
-            }
+        stage('Test & Coverage') {
             steps {
-                echo '🧪 Ejecutando pruebas unitarias...'
+                echo '🧪 Ejecutando pruebas y análisis de cobertura...'
                 dir('task-service') {
-                    sh 'mvn clean test'
-                }
-            }
-        }
-
-        stage('Codecov Upload') {
-            steps {
-                echo '📊 Subiendo reporte a Codecov...'
-                withCredentials([string(credentialsId: 'codecov-token', variable: 'CODECOV_TOKEN')]) {
-                    dir('task-service') {
+                    script {
+                        try {
+                            // 1. Construir imagen temporal con el código fuente
+                            // Esto evita problemas de volúmenes en Jenkins-in-Docker
+                            sh 'docker build --target builder -t task-service-test .'
+                            
+                            // 2. Ejecutar tests en un contenedor nombrado
+                            sh 'docker run --name test-runner task-service-test mvn test jacoco:report'
+                        } finally {
+                            // 3. Extraer reportes (incluso si fallan los tests)
+                            sh 'mkdir -p target/site/jacoco'
+                            sh 'docker cp test-runner:/app/target/site/jacoco/jacoco.xml target/site/jacoco/jacoco.xml || true'
+                            
+                            // 4. Limpiar
+                            sh 'docker rm -f test-runner || true'
+                            sh 'docker rmi -f task-service-test || true'
+                        }
+                    }
+                    
+                    // 5. Subir a Codecov
+                    withCredentials([string(credentialsId: 'codecov-token', variable: 'CODECOV_TOKEN')]) {
                         sh '''
-                            curl -Os https://uploader.codecov.io/latest/linux/codecov
-                            chmod +x codecov
-                            ./codecov -t $CODECOV_TOKEN -f target/site/jacoco/jacoco.xml
+                            if [ -f target/site/jacoco/jacoco.xml ]; then
+                                curl -Os https://uploader.codecov.io/latest/linux/codecov
+                                chmod +x codecov
+                                ./codecov -t $CODECOV_TOKEN -f target/site/jacoco/jacoco.xml
+                            else
+                                echo "⚠️ No se encontró reporte de cobertura"
+                            fi
                         '''
                     }
                 }
