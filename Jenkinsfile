@@ -13,29 +13,29 @@ pipeline {
             }
         }
 
-        stage('Test & Coverage') {
+        stage('Unit Tests') {
+            agent {
+                docker {
+                    image 'maven:3.9-eclipse-temurin-21'
+                    reuseNode true
+                }
+            }
             steps {
-                echo '🧪 Ejecutando pruebas y análisis de cobertura...'
+                echo '🧪 Ejecutando pruebas unitarias...'
+                dir('task-service') {
+                    sh 'mvn clean test'
+                }
+            }
+        }
+
+        stage('Codecov Upload') {
+            steps {
+                echo '📊 Subiendo reporte a Codecov...'
                 withCredentials([string(credentialsId: 'codecov-token', variable: 'CODECOV_TOKEN')]) {
-                    script {
-                        // 1. Ejecutar pruebas usando un contenedor de Maven
-                        // Montamos el código actual en el contenedor para probarlo
+                    dir('task-service') {
                         sh '''
-                            docker run --rm \
-                                -v "${WORKSPACE}/task-service":/app \
-                                -w /app \
-                                maven:3.9-eclipse-temurin-21 \
-                                mvn clean test
-                        '''
-                        
-                        // 2. Subir el reporte a Codecov
-                        sh '''
-                            cd task-service
-                            # Descargar el uploader de Codecov
                             curl -Os https://uploader.codecov.io/latest/linux/codecov
                             chmod +x codecov
-                            
-                            # Enviar el reporte usando el token
                             ./codecov -t $CODECOV_TOKEN -f target/site/jacoco/jacoco.xml
                         '''
                     }
