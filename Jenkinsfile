@@ -98,11 +98,7 @@ pipeline {
         always {
             echo '🏁 Pipeline finalizado'
             junit '**/target/surefire-reports/*.xml'
-            publishHTML([
-                reportDir: 'task-service/target/site',
-                reportFiles: 'surefire-report.html',
-                reportName: 'Test Report'
-            ])
+            // publishHTML removed as plugin is missing
         }
         success {
             echo '✅ Pipeline ejecutado con éxito'
