@@ -33,7 +33,8 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
-.mvn/wrapper/maven-wrapper.jar
+
+!.mvn/wrapper/maven-wrapper.jar
 
 # IntelliJ IDEA
 .idea/
@@ -64,7 +65,9 @@ Desktop.ini
 *.db
 *.trace.db
 
-# Spring Boot
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# Spring Boot DevTools
+.spring-boot-devtools.properties
+
+# Node modules (para el frontend)
+node_modules/
+package-lock.json

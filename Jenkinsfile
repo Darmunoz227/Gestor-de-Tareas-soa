@@ -12,6 +12,32 @@ pipeline {
                 checkout scm
             }
         }
+
+        stage('Unit Tests') {
+            steps {
+                echo '🧪 Ejecutando pruebas unitarias...'
+                script {
+                    sh '''
+                        cd task-service
+                        ./mvnw test -Dtest=**/*Test.java
+                        echo "✅ Pruebas unitarias completadas"
+                    '''
+                }
+            }
+        }
+
+        stage('Test Report') {
+            steps {
+                echo '📊 Generando reportes de pruebas...'
+                script {
+                    sh '''
+                        cd task-service
+                        ./mvnw surefire-report:report
+                        echo "✅ Reporte generado en target/site/surefire-report.html"
+                    '''
+                }
+            }
+        }
                 
         stage('Build') {
             steps {
@@ -56,6 +82,12 @@ pipeline {
     post {
         always {
             echo '🏁 Pipeline finalizado'
+            junit '**/target/surefire-reports/*.xml'
+            publishHTML([
+                reportDir: 'task-service/target/site',
+                reportFiles: 'surefire-report.html',
+                reportName: 'Test Report'
+            ])
         }
         success {
             echo '✅ Pipeline ejecutado con éxito'
