@@ -13,28 +13,35 @@ pipeline {
             }
         }
 
-        stage('Unit Tests') {
+        stage('Test & Coverage') {
             steps {
-                echo '🧪 Ejecutando pruebas unitarias...'
-                script {
-                    sh '''
-                        cd task-service
-                        ./mvnw test -Dtest=**/*Test.java
-                        echo "✅ Pruebas unitarias completadas"
-                    '''
+                echo '🧪 Ejecutando pruebas y análisis de cobertura...'
+                withCredentials([string(credentialsId: 'codecov-token', variable: 'CODECOV_TOKEN')]) {
+                    script {
+                        // 1. Ejecutar pruebas usando un contenedor de Maven
+                        // Montamos el código actual en el contenedor para probarlo
+                        sh '''
+                            docker run --rm \
+                                -v "${WORKSPACE}/task-service":/app \
+                                -w /app \
+                                maven:3.9-eclipse-temurin-21 \
+                                mvn clean test
+                        '''
+                        
+                        // 2. Subir el reporte a Codecov
+                        sh '''
+                            cd task-service
+                            # Descargar el uploader de Codecov
+                            curl -Os https://uploader.codecov.io/latest/linux/codecov
+                            chmod +x codecov
+                            
+                            # Enviar el reporte usando el token
+                            ./codecov -t $CODECOV_TOKEN -f target/site/jacoco/jacoco.xml
+                        '''
+                    }
                 }
             }
         }
-
-        stage('Test Report') {
-            steps {
-                echo '📊 Generando reportes de pruebas...'
-                script {
-                    sh '''
-                        cd task-service
-                        ./mvnw surefire-report:report
-                        echo "✅ Reporte generado en target/site/surefire-report.html"
-                    '''
                 }
             }
         }
