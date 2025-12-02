@@ -109,6 +109,18 @@
             <optional>true</optional>
         </dependency>
         
+        <!-- 
+        ============================================
+        SPRING BOOT TEST
+        ============================================
+        Librerías para pruebas unitarias y de integración
+        Incluye JUnit 5, Mockito, AssertJ, etc.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -122,6 +134,33 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.11</version>
+
+            <!-- 
+            ============================================
+            MAVEN SUREFIRE PLUGIN
+            ============================================
+            Configuración explícita para asegurar que JaCoCo funcione bien.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- Importante: ${argLine} permite que JaCoCo se adjunte como agente -->
+                    <argLine>${argLine} -XX:+EnableDynamicAgentLoading -Xshare:off</argLine>
+                </configuration>
+            </plugin>
+
+            <!-- 
+            ============================================
+            JACOCO (Java Code Coverage)
+            ============================================
+            Genera reportes de cobertura de código.
+            Es necesario para que Codecov funcione.
+            -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
                 <executions>
                     <execution>
                         <goals>
