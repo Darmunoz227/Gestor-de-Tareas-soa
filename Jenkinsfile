@@ -28,7 +28,9 @@ pipeline {
                         } finally {
                             // 3. Extraer reportes (incluso si fallan los tests)
                             sh 'mkdir -p target/site/jacoco'
+                            sh 'mkdir -p target/surefire-reports'
                             sh 'docker cp test-runner:/app/target/site/jacoco/jacoco.xml target/site/jacoco/jacoco.xml || true'
+                            sh 'docker cp test-runner:/app/target/surefire-reports/. target/surefire-reports/ || true'
                             
                             // 4. Limpiar
                             sh 'docker rm -f test-runner || true'
