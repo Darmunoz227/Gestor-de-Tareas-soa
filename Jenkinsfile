@@ -61,6 +61,8 @@ pipeline {
                     sh '''
                         echo "Limpiando contenedores anteriores..."
                         docker compose down || true
+                        # Forzar eliminación de contenedores por nombre para evitar conflictos si fueron creados fuera de este pipeline
+                        docker rm -f taskdb-postgres task-backend task-frontend || true
                         
                         echo "Construyendo imágenes..."
                         docker compose build --no-cache
